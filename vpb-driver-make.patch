@@ -1,0 +1,68 @@
+--- vpb-driver-4.2.55/src/vtcore/Makefile.orig	2012-05-09 13:57:34.000000000 +0200
++++ vpb-driver-4.2.55/src/vtcore/Makefile	2013-01-27 15:13:32.826786200 +0100
+@@ -50,8 +50,6 @@
+ 		echo "installing $$m --> $(MODULEDIR)";	\
+ 		install -m 644 $$m $(MODULEDIR);	\
+ 	done
+-	/sbin/depmod
+-	@modprobe -r netjet > /dev/null 2>&1 || true
+ 
+ clean distclean:
+ 	rm -f *.o *.ko *~ core *.mod.c .*.cmd
+--- vpb-driver-4.2.55/src/vpb/Makefile.orig	2012-05-09 13:57:34.000000000 +0200
++++ vpb-driver-4.2.55/src/vpb/Makefile	2013-01-27 15:30:43.120098058 +0100
+@@ -46,7 +46,6 @@
+ 		echo "installing $$m --> $(MODULEDIR)";	\
+ 		install -m 644 $$m $(MODULEDIR);	\
+ 	done
+-	/sbin/depmod
+ 
+ clean distclean:
+ 	$(RM) *.o *.ko *~ core *.mod.c .*.cmd
+--- vpb-driver-4.2.55/configure.ac.orig	2012-05-09 13:57:34.000000000 +0200
++++ vpb-driver-4.2.55/configure.ac	2013-01-27 17:02:41.733316367 +0100
+@@ -39,9 +39,6 @@
+ AC_SUBST(HOST_OS)
+ 
+ 
+-# Don't let these get set by AC_PROG_* below.
+-CFLAGS=
+-CXXFLAGS=
+ 
+ 
+ AC_PROG_CC
+@@ -73,9 +70,6 @@
+     cxx_flags="$cxx_flags -g"
+     cc_flags="$cc_flags -g"
+ else
+-    cxx_flags="$cxx_flags -O3"
+-    cc_flags="$cc_flags -O3"
+-
+     if test $ac_cv_enable_debug_syms = yes; then
+ 	cxx_flags="$cxx_flags -g"
+ 	cc_flags="$cc_flags -g"
+@@ -123,12 +117,8 @@
+     CASLOG=enable_caslog
+ fi
+ if test $ac_cv_with_pri = yes; then
+-    if test -d /etc/wanpipe; then
+ 	LIBVPB_PRI_CPPFLAGS="-D_OPENPRI -I\$(top_srcdir)/src"
+ 	LIBVPB_PRI_OBJ="\$(PRI_OBJ)"
+-    else
+-	AC_MSG_ERROR([/etc/wanpipe is not installed, cannot build --with-pri])
+-    fi
+ fi
+ 
+ AC_ARG_ENABLE(softbridge,
+--- vpb-driver-4.2.55/src/libvpb/Makefile.in.orig	2012-05-09 13:57:34.000000000 +0200
++++ vpb-driver-4.2.55/src/libvpb/Makefile.in	2013-01-27 18:06:04.083237114 +0100
+@@ -181,9 +181,6 @@
+ 	    install -m 644 $(top_srcdir)/firmware/vpbmain_pci.out	\
+ 			   $(DESTDIR)$(datadir)/vpb-driver;		\
+ 	fi
+-ifeq ($(LIB_TYPE),shared)
+-	/sbin/ldconfig
+-endif
+ 
+ # Install the runtime library files.
+ install-lib:

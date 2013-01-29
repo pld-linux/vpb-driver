@@ -23,6 +23,7 @@ Group:		Libraries
 Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{name}-%{version}.tar.gz
 # Source0-md5:	d014a29043334923e0976a9273627b63
 Patch0:		%{name}-make.patch
+Patch1:		%{name}-kernel.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
 %if %{with dist_kernel}
 BuildRequires:	kernel%{_alt_kernel}-module-build
@@ -31,6 +32,7 @@ BuildRequires:	autoconf >= 2.59
 BuildRequires:	libstdc++-devel
 BuildRequires:	pciutils-devel
 BuildRequires:	rpmbuild(macros) >= 1.379
+BuildRequires:	sed >= 4.0
 BuildRequires:	zlib-devel
 Requires:	vpb-libs = %{version}-%{rel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -101,6 +103,14 @@ Sterownik jądra Linuksa do kart VPB firmy Voicetronix.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
+
+%if %{without kernel}
+%{__sed} -i -e 's,subdirs += $(srcdir)/vtcore $(srcdir)/vpb,,' src/Makefile.in
+%endif
+%if %{without userspace}
+%{__sed} -i -e 's,subdirs = libtoneg libvpb utils,,' src/Makefile.in
+%endif
 
 %build
 %{__aclocal}
@@ -110,19 +120,25 @@ install -d build-static
 cd build-static
 ../%configure \
 	%{?with_pri:--with-pri}
-%{__make}
+%{__make} -C src/libtoneg \
+	VPATH=%{_libdir}
+%{__make} -C src/libvpb \
+	VPATH=%{_libdir}
 cd ..
 %endif
 %configure \
 	%{?with_pri:--with-pri} \
 	--enable-shared
-%{__make}
+%{__make} \
+	%{?with_kernel:KSRC=%{_kernelsrcdir}} \
+	VPATH=%{_libdir}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
 %{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
+	DESTDIR=$RPM_BUILD_ROOT \
+	%{?with_kernel:KSRC=%{_kernelsrcdir}}
 
 %if %{with userspace}
 # let rpm generate dependencies

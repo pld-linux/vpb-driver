@@ -219,7 +219,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %if %{with kernel}
-%files -n kernel-telephony-vpb
+%files -n kernel%{_alt_kernel}-telephony-vpb
 %defattr(644,root,root,755)
 %dir /lib/modules/%{_kernel_ver}/kernel/drivers/telephony
 /lib/modules/%{_kernel_ver}/kernel/drivers/telephony/vpb.ko*

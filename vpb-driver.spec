@@ -12,18 +12,20 @@
 %if %{without kernel}
 %undefine	with_dist_kernel
 %endif
+
+%define	rel	1
+%define		pname	vpb-driver
 Summary:	Voicetronix voice processing board (VPB) driver software
 Summary(pl.UTF-8):	Oprogramowanie sterowników dla kart przetwarzających głos (VPB) Voicetronix
-Name:		vpb-driver
+Name:		%{pname}%{_alt_kernel}
 Version:	4.2.55
-%define	rel	1
 Release:	%{rel}
 License:	LGPL v2.1+ (libraries), GPL v2+ (libpri library, kernel module)
 Group:		Libraries
-Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{name}-%{version}.tar.gz
+Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{pname}-%{version}.tar.gz
 # Source0-md5:	d014a29043334923e0976a9273627b63
-Patch0:		%{name}-make.patch
-Patch1:		%{name}-kernel.patch
+Patch0:		%{pname}-make.patch
+Patch1:		%{pname}-kernel.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
 %if %{with dist_kernel}
 BuildRequires:	kernel%{_alt_kernel}-module-build
@@ -101,7 +103,7 @@ Linux kernel driver for Voicetronix Voice Processing Board (VPB).
 Sterownik jądra Linuksa do kart VPB firmy Voicetronix.
 
 %prep
-%setup -q
+%setup -q -n %{pname}-%{version}
 %patch0 -p1
 %patch1 -p1
 
@@ -203,6 +205,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with kernel}
 %files -n kernel-telephony-vpb
 %defattr(644,root,root,755)
+%dir /lib/modules/%{_kernel_ver}/kernel/drivers/telephony
 /lib/modules/%{_kernel_ver}/kernel/drivers/telephony/vpb.ko*
 /lib/modules/%{_kernel_ver}/kernel/drivers/telephony/vtcore.ko*
 /lib/modules/%{_kernel_ver}/kernel/drivers/telephony/vtopenpci.ko*

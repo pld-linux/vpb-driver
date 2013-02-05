@@ -131,18 +131,34 @@ cd ..
 %configure \
 	%{?with_pri:--with-pri} \
 	--enable-shared
+
+%if %{without userspace}
+%{__make} -C src \
+	%{?with_kernel:KSRC=%{_kernelsrcdir}} \
+	VPATH=%{_libdir}
+%else
 %{__make} \
 	%{?with_kernel:KSRC=%{_kernelsrcdir}} \
 	VPATH=%{_libdir}
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
+%if %{without userspace}
+%{__make} -C src install \
+	DESTDIR=$RPM_BUILD_ROOT \
+	%{?with_kernel:KSRC=%{_kernelsrcdir}}
+
+install -d $RPM_BUILD_ROOT/etc/modprobe.d
+install src/libvpb/blunt-axe.conf $RPM_BUILD_ROOT/etc/modprobe.d
+
+%else
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	%{?with_kernel:KSRC=%{_kernelsrcdir}}
 
-%if %{with userspace}
 # let rpm generate dependencies
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib*.so*
 

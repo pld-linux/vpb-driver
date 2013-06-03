@@ -13,7 +13,7 @@
 %undefine	with_dist_kernel
 %endif
 
-%define	rel	16
+%define	rel	17
 %define		pname	vpb-driver
 Summary:	Voicetronix voice processing board (VPB) driver software
 Summary(pl.UTF-8):	Oprogramowanie sterowników dla kart przetwarzających głos (VPB) Voicetronix

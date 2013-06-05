@@ -26,6 +26,7 @@ Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{pname}-%{versi
 # Source0-md5:	aa7442b5b98a566fe67544115d83e20a
 Patch0:		%{pname}-make.patch
 Patch1:		%{pname}-kernel.patch
+Patch2:		linux-3.8.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
 %if %{with dist_kernel}
 BuildRequires:	kernel%{_alt_kernel}-module-build
@@ -106,6 +107,9 @@ Sterownik jądra Linuksa do kart VPB firmy Voicetronix.
 %setup -q -n %{pname}-%{version}
 %patch0 -p1
 %patch1 -p1
+%if "%{_alt_kernel}" == "%{nil}"
+%patch2 -p1
+%endif
 
 %if %{without kernel}
 %{__sed} -i -e 's,subdirs += $(srcdir)/vtcore $(srcdir)/vpb,,' src/Makefile.in

@@ -1,14 +1,9 @@
 #
 # Conditional build:
-%bcond_without	dist_kernel	# without distribution kernel
 %bcond_without  kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace package
 %bcond_without	static_libs	# don't build static libraries
 %bcond_with	pri		# ISDN devices support (modified libpri)
-
-%if %{without kernel}
-%undefine	with_dist_kernel
-%endif
 
 # The goal here is to have main, userspace, package built once with
 # simple release number, and only rebuild kernel packages with kernel
@@ -55,7 +50,7 @@ Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{pname}-%{versi
 Patch0:		%{pname}-make.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
 BuildRequires:	rpmbuild(macros) >= 1.678
-%{?with_dist_kernel:%{expand:%kbrs}}
+%{?with_kernel:%{expand:%kbrs}}
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	libstdc++-devel
 BuildRequires:	pciutils-devel
@@ -117,10 +112,8 @@ Release:	%{rel}@%{_kernel_ver_str}\
 License:	GPL v2+\
 Group:		Base/Kernel\
 Requires(post,postun):	/sbin/depmod\
-%if %{with dist_kernel}\
 %requires_releq_kernel\
 Requires(postun):	%releq_kernel\
-%endif\
 \
 %description -n kernel%{_alt_kernel}-telephony-vpb\
 Linux kernel driver for Voicetronix Voice Processing Board (VPB).\

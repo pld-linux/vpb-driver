@@ -14,27 +14,12 @@
 exit 1
 %endif
 
-%if "%{_alt_kernel}" != "%{nil}"
-%if 0%{?build_kernels:1}
-%{error:alt_kernel and build_kernels are mutually exclusive}
-exit 1
-%endif
-%undefine	with_userspace
-%global		_build_kernels		%{alt_kernel}
-%else
-%global		_build_kernels		%{?build_kernels:,%{?build_kernels}}
-%endif
-
 %if %{without userspace}
 # nothing to be placed to debuginfo package
 %define		_enable_debug_packages	0
 %endif
 
 %define		_duplicate_files_terminate_build	0
-
-%define		kbrs	%(echo %{_build_kernels} | tr , '\\n' | while read n ; do echo %%undefine alt_kernel ; [ -z "$n" ] || echo %%define alt_kernel $n ; echo "BuildRequires:kernel%%{_alt_kernel}-module-build >= 3:2.6.20.2" ; done)
-%define		kpkg	%(echo %{_build_kernels} | tr , '\\n' | while read n ; do echo %%undefine alt_kernel ; [ -z "$n" ] || echo %%define alt_kernel $n ; echo %%kernel_pkg ; done)
-%define		bkpkg	%(echo %{_build_kernels} | tr , '\\n' | while read n ; do echo %%undefine alt_kernel ; [ -z "$n" ] || echo %%define alt_kernel $n ; echo %%build_kernel_pkg ; done)
 
 %define	rel	8
 %define		pname	vpb-driver
@@ -49,8 +34,8 @@ Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{pname}-%{versi
 # Source0-md5:	35d0ea8ab7a6bda267603ca7c9b78671
 Patch0:		%{pname}-make.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
-BuildRequires:	rpmbuild(macros) >= 1.678
-%{?with_kernel:%{expand:%kbrs}}
+BuildRequires:	rpmbuild(macros) >= 1.701
+%{?with_kernel:%{expand:%buildrequires_kernel kernel%%{_alt_kernel}-module-build >= 3:2.6.20.2}}
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	libstdc++-devel
 BuildRequires:	pciutils-devel
@@ -149,7 +134,7 @@ p=`pwd`\
 	KSRC=%{_kernelsrcdir}\
 %{nil}
 
-%{?with_kernel:%{expand:%kpkg}}
+%{?with_kernel:%{expand:%create_kernel_packages}}
 
 %prep
 %setup -q -n %{pname}-%{version}
@@ -186,7 +171,7 @@ cd ..
 	VPATH=%{_libdir}
 %endif
 
-%{?with_kernel:%{expand:%bkpkg}}
+%{?with_kernel:%{expand:%build_kernel_packages}}
 
 %install
 rm -rf $RPM_BUILD_ROOT

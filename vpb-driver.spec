@@ -21,17 +21,17 @@ exit 1
 
 %define		_duplicate_files_terminate_build	0
 
-%define	rel	9
+%define	rel	1
 %define		pname	vpb-driver
 Summary:	Voicetronix voice processing board (VPB) driver software
 Summary(pl.UTF-8):	Oprogramowanie sterowników dla kart przetwarzających głos (VPB) Voicetronix
 Name:		%{pname}%{?_pld_builder:%{?with_kernel:-kernel}}%{_alt_kernel}
-Version:	4.2.57
+Version:	4.2.58
 Release:	%{rel}%{?_pld_builder:%{?with_kernel:@%{_kernel_ver_str}}}
 License:	LGPL v2.1+ (libraries), GPL v2+ (libpri library, kernel module)
 Group:		Libraries
 Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{pname}-%{version}.tar.gz
-# Source0-md5:	35d0ea8ab7a6bda267603ca7c9b78671
+# Source0-md5:	f8c85b52e8d01b04d86632e98ac59d19
 Patch0:		%{pname}-make.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
 BuildRequires:	rpmbuild(macros) >= 1.701

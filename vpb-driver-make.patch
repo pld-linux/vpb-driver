@@ -35,8 +35,8 @@
      cxx_flags="$cxx_flags -g"
      cc_flags="$cc_flags -g"
  else
--    cxx_flags="$cxx_flags -O3"
--    cc_flags="$cc_flags -O3"
+-    cxx_flags="$cxx_flags -O2"
+-    cc_flags="$cc_flags -O2"
 -
      if test $ac_cv_enable_debug_syms = yes; then
  	cxx_flags="$cxx_flags -g"

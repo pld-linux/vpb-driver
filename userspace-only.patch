@@ -1,0 +1,12 @@
+--- vpb-driver-4.2.58/src/Makefile.in~	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58/src/Makefile.in	2017-08-01 10:46:21.869784413 +0200
+@@ -7,9 +7,6 @@
+ include $(top_builddir)/Makefile.common
+ 
+ subdirs = libtoneg libvpb utils
+-ifeq ($(HOST_OS),linux)
+-subdirs += $(srcdir)/vtcore $(srcdir)/vpb
+-endif
+ 
+ all: JBS = $(NJOBS)
+ all install: $(top_srcdir)/Version

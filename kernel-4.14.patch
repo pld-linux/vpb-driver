@@ -1,0 +1,10 @@
+--- vpb-driver-4.2.58/src/vpb/vpb.c~	2017-11-18 09:57:20.000000000 +0100
++++ vpb-driver-4.2.58/src/vpb/vpb.c	2017-11-18 09:58:55.413610452 +0100
+@@ -109,6 +109,7 @@
+ #include <linux/errno.h>
+ #include <linux/mm.h>
+ #include <linux/fs.h>
++#include <linux/sched.h>
+ #include "vpb_ioctl.h"
+ //#include "iic.h"		// s/w IIC emulation
+ #include "iic.c"

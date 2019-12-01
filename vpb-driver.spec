@@ -126,6 +126,8 @@ Sterownik jądra Linuksa do kart VPB firmy Voicetronix.\
 %{nil}
 
 %define build_kernel_pkg()\
+%{__make} -C src/vtcore KSRC=%{_kernelsrcdir} clean \
+%{__make} -C src/vpb KSRC=%{_kernelsrcdir} clean \
 %{__make} -C src/vtcore KSRC=%{_kernelsrcdir} \
 %{__make} -C src/vpb KSRC=%{_kernelsrcdir} \
 p=`pwd`\

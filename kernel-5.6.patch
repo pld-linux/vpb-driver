@@ -1,0 +1,164 @@
+diff -ur vpb-driver-4.2.58/src/vpb/vpb.c vpb-driver-4.2.58-kernel-5.6/src/vpb/vpb.c
+--- vpb-driver-4.2.58/src/vpb/vpb.c	2020-04-07 23:21:44.462483689 +0200
++++ vpb-driver-4.2.58-kernel-5.6/src/vpb/vpb.c	2020-04-07 23:21:12.351359828 +0200
+@@ -284,7 +284,11 @@
+ 			printk(KERN_INFO NAME ": tmp [0x%lx] dev->res2 [0x%lx]\n",
+                                               tmp, (unsigned long)dev->resource[2].start);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+                         base2[numPCI] = ioremap_nocache(dev->resource[2].start &
++#else
++                        base2[numPCI] = ioremap(dev->resource[2].start &
++#endif
+                                                 PCI_BASE_ADDRESS_MEM_MASK,
+                                                 sizeof(short)*SIZE_WD);
+ 
+diff -ur vpb-driver-4.2.58/src/vtcore/vtcore_main.c vpb-driver-4.2.58-kernel-5.6/src/vtcore/vtcore_main.c
+--- vpb-driver-4.2.58/src/vtcore/vtcore_main.c	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58-kernel-5.6/src/vtcore/vtcore_main.c	2020-04-07 23:13:43.483613391 +0200
+@@ -225,12 +225,21 @@
+ 	return single_open(file, vt_int_proc_show, PDE_DATA(inode));
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+ const struct file_operations vt_int_proc_fops = {
+ 	.open		= vt_int_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+ 	.release	= single_release,
+ }; //}}}
++#else
++const struct proc_ops vt_int_proc_fops = {
++	.proc_open		= vt_int_proc_open,
++	.proc_read		= seq_read,
++	.proc_lseek		= seq_lseek,
++	.proc_release	= single_release,
++}; //}}}
++#endif
+ 
+ static int vt_string_proc_show(struct seq_file *m, void *v)
+ { //{{{
+@@ -243,12 +252,21 @@
+ 	return single_open(file, vt_string_proc_show, PDE_DATA(inode));
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+ const struct file_operations vt_string_proc_fops = {
+ 	.open		= vt_string_proc_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+ 	.release	= single_release,
+ }; //}}}
++#else
++const struct proc_ops vt_string_proc_fops = {
++	.proc_open		= vt_string_proc_open,
++	.proc_read		= seq_read,
++	.proc_lseek		= seq_lseek,
++	.proc_release	= single_release,
++}; //}}}
++#endif
+ 
+ 
+ int __init vtcore_init(void)
+@@ -1081,6 +1099,7 @@
+ 	return ret;
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+ static const struct file_operations vt_country_proc_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= vt_country_proc_open,
+@@ -1089,6 +1108,15 @@
+ 	.release	= single_release,
+ 	.write		= vt_country_proc_write,
+ }; //}}}
++#else
++static const struct proc_ops vt_country_proc_fops = {
++	.proc_open		= vt_country_proc_open,
++	.proc_read		= seq_read,
++	.proc_lseek		= seq_lseek,
++	.proc_release	= single_release,
++	.proc_write		= vt_country_proc_write,
++}; //}}}
++#endif
+ 
+ // Template definitions for port ops that communicate a single integer value.
+ // {{{
+@@ -1158,6 +1186,7 @@
+ 	return ret;								\
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+ #define PROC_READ_PORT(attrib)							\
+ 	PROC_READ_PORT_(attrib)							\
+ 										\
+@@ -1180,6 +1209,29 @@
+ 	.release	= single_release,					\
+ 	.write		= vt_##attrib##_proc_write,				\
+ };
++#else
++#define PROC_READ_PORT(attrib)							\
++	PROC_READ_PORT_(attrib)							\
++										\
++static const struct proc_ops vt_##attrib##_proc_fops = {			\
++	.proc_open	= vt_##attrib##_proc_open,				\
++	.proc_read	= seq_read,						\
++	.proc_lseek	= seq_lseek,						\
++	.proc_release	= single_release,					\
++};
++
++#define PROC_READWRITE_PORT(attrib)						\
++	PROC_READ_PORT_(attrib)							\
++	PROC_WRITE_PORT_(attrib)						\
++										\
++static const struct proc_ops vt_##attrib##_proc_fops = {			\
++	.proc_open	= vt_##attrib##_proc_open,				\
++	.proc_read	= seq_read,						\
++	.proc_lseek	= seq_lseek,						\
++	.proc_release	= single_release,					\
++	.proc_write	= vt_##attrib##_proc_write,				\
++};
++#endif
+ //}}}
+ 
+ PROC_READWRITE_PORT(playgain)
+diff -ur vpb-driver-4.2.58/src/vtcore/vtmodule.h vpb-driver-4.2.58-kernel-5.6/src/vtcore/vtmodule.h
+--- vpb-driver-4.2.58/src/vtcore/vtmodule.h	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58-kernel-5.6/src/vtcore/vtmodule.h	2020-04-07 23:20:06.772506361 +0200
+@@ -9,6 +9,7 @@
+ #define __VTMODULE__
+ 
+ #include <linux/cdev.h>
++#include <linux/proc_fs.h>
+ 
+ #include "linringbuf.h"
+ 
+@@ -159,8 +160,13 @@
+ void vt_read(struct vtboard *board);
+ int vt_send_event(struct vtboard *board, char *mess, int size);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+ const struct file_operations vt_int_proc_fops;
+ const struct file_operations vt_string_proc_fops;
++#else
++const struct proc_ops vt_int_proc_fops;
++const struct proc_ops vt_string_proc_fops;
++#endif
+ void vt_create_board_proc_const_int(struct vtboard *board, const char *node, long val);
+ 
+ #endif
+diff -ur vpb-driver-4.2.58/src/vtcore/vtopenswitch.c vpb-driver-4.2.58-kernel-5.6/src/vtcore/vtopenswitch.c
+--- vpb-driver-4.2.58/src/vtcore/vtopenswitch.c	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58-kernel-5.6/src/vtcore/vtopenswitch.c	2020-04-07 23:09:27.362701175 +0200
+@@ -1642,7 +1642,11 @@
+ 	//XXX The new way.
+ 	//void __iomem * map = pci_iomap(dev, bar, maxbytes);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+ 	card->base0 = ioremap_nocache( pci_resource_start(pdev,0),
++#else
++	card->base0 = ioremap( pci_resource_start(pdev,0),
++#endif
+ 				       pci_resource_len(pdev,0) );
+ 	card->base2 = ioremap( pci_resource_start(pdev,2),
+ 			       pci_resource_len(pdev,2) );

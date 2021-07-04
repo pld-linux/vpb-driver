@@ -1,0 +1,34 @@
+--- vpb-driver-4.2.58/src/vtcore/vtcommon.h~	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58/src/vtcore/vtcommon.h	2021-07-04 13:33:05.236176514 +0200
+@@ -50,12 +50,14 @@
+ #endif
+ 
+ #ifdef MODVERSIONS
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,13,0))
+  #if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,4))
+   #include <config/modversions.h>
+  #else
+   #include <linux/modversions.h>
+  #endif
+ #endif
++#endif
+ 
+ #include <linux/slab.h>
+ 
+--- vpb-driver-4.2.58/src/vpb/vpb.c~	2021-07-04 13:29:04.000000000 +0200
++++ vpb-driver-4.2.58/src/vpb/vpb.c	2021-07-04 13:33:38.639839452 +0200
+@@ -98,12 +98,14 @@
+ #endif
+ 
+ #ifdef MODVERSIONS
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,13,0))
+ #if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,4))
+ #include <config/modversions.h>
+ #else
+ #include <linux/modversions.h>
+ #endif
+ #endif
++#endif
+ 
+ #include <linux/ioport.h>
+ #include <linux/errno.h>

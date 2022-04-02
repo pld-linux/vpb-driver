@@ -1,0 +1,12 @@
+--- vpb-driver-4.2.58/src/vtcore/vtcore_main.c~	2022-04-02 22:16:28.000000000 +0200
++++ vpb-driver-4.2.58/src/vtcore/vtcore_main.c	2022-04-02 22:19:19.064381658 +0200
+@@ -131,6 +131,9 @@
+ 	return PROC_I(inode)->pde->data;
+ }
+ #endif
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,17,0)
++#define PDE_DATA pde_data
++#endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0)
+ static inline struct inode *file_inode(struct file *f)

@@ -1,0 +1,46 @@
+--- vpb-driver-4.2.58/src/vtcore/vtopenpci.c~	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58/src/vtcore/vtopenpci.c	2022-05-26 06:49:21.913308375 +0200
+@@ -2414,9 +2414,15 @@
+ 			goto hell_3;
+ 		}
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+ 		card->writeblock = (int *)pci_alloc_consistent(pdev,
+ 							       VT_PCIDMA_BLOCKSIZE,
+ 							       &card->writedma);
++#else
++		card->writeblock = (int *)dma_alloc_coherent(&pdev->dev,
++							       VT_PCIDMA_BLOCKSIZE,
++							       &card->writedma, GFP_ATOMIC);
++#endif
+ 		if (!card->writeblock){
+ 			cardcrit(cardnum, "FAILED to get DMA memory.");
+ 			goto hell_3;
+@@ -2528,8 +2534,13 @@
+ 	vtopenpci_board_unregister( card );
+     hell_4:
+ 	if (card->writeblock){
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+ 		pci_free_consistent(pdev, VT_PCIDMA_BLOCKSIZE,
+ 				    (void*)card->writeblock, card->writedma);
++#else
++		dma_free_coherent(&pdev->dev, VT_PCIDMA_BLOCKSIZE,
++				    (void*)card->writeblock, card->writedma);
++#endif
+ 	}
+     hell_3:
+ 	outb(0x00, TJ_CNTL);
+@@ -2600,8 +2611,13 @@
+ 		vtopenpci_board_unregister( card );
+ 		outb(0x00, TJ_CNTL);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+ 		pci_free_consistent(pdev, VT_PCIDMA_BLOCKSIZE,
+ 				    (void*)card->writeblock, card->writedma);
++#else
++		dma_free_coherent(&pdev->dev, VT_PCIDMA_BLOCKSIZE,
++				    (void*)card->writeblock, card->writedma);
++#endif
+ 	} else {
+ 		//XXX Do we need to do a forceful hangup here too?
+ 		if( card->ppdatamask == 0 ) unexport_module_info(card);

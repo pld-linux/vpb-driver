@@ -1,0 +1,40 @@
+--- vpb-driver-4.2.58/include/vt/tonegen.h~	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58/include/vt/tonegen.h	2023-12-18 09:09:50.785031749 +0100
+@@ -34,6 +34,7 @@
+ 
+ #include <vector>
+ #include <string>
++#include <pthread.h>
+ #include <stdint.h>
+ 
+ 
+--- vpb-driver-4.2.58/src/utils/tonegen.cpp~	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58/src/utils/tonegen.cpp	2023-12-18 09:11:22.661007600 +0100
+@@ -30,6 +30,7 @@
+ #include <cstdio>
+ #include <cstdlib>
+ #include <cstring>
++#include <pthread.h>
+ 
+ using std::string;
+ 
+--- vpb-driver-4.2.58/src/utils/vpbecho.cpp~	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58/src/utils/vpbecho.cpp	2023-12-18 09:11:56.086565702 +0100
+@@ -39,6 +39,7 @@
+ #include <cstdio>
+ #include <cstdlib>
+ #include <cstring>
++#include <pthread.h>
+ 
+ 
+ // This was used for testing line voltage issues with OpenLine cards,
+--- vpb-driver-4.2.58/src/utils/playwav.cpp~	2014-09-28 20:02:28.000000000 +0200
++++ vpb-driver-4.2.58/src/utils/playwav.cpp	2023-12-18 09:12:22.241655326 +0100
+@@ -30,6 +30,7 @@
+ #include <cstdio>
+ #include <cstdlib>
+ #include <cstring>
++#include <pthread.h>
+ 
+ 
+ static int arg_exists(int argc, char *argv[], const char *arg)

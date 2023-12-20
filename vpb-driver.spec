@@ -42,6 +42,7 @@ Patch6:		kernel-5.13.patch
 Patch7:		kernel-5.17.patch
 Patch8:		kernel-5.18.patch
 Patch9:		pthread.patch
+Patch10:	kernel-6.5.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
 BuildRequires:	rpmbuild(macros) >= 1.701
 %{?with_kernel:%{expand:%buildrequires_kernel kernel%%{_alt_kernel}-module-build >= 3:2.6.20.2}}
@@ -159,6 +160,7 @@ p=`pwd`\
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 %if %{without kernel}
 %{__sed} -i -e 's,subdirs += $(srcdir)/vtcore $(srcdir)/vpb,,' src/Makefile.in

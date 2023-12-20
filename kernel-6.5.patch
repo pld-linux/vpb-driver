@@ -1,0 +1,62 @@
+--- vpb-driver-4.2.58/src/vtcore/vtcore_main.c.orig	2023-12-20 21:05:22.000000000 +0100
++++ vpb-driver-4.2.58/src/vtcore/vtcore_main.c	2023-12-20 21:32:27.930068617 +0100
+@@ -120,8 +120,11 @@
+  static struct class *vt_class;
+  #define device_create(c,p,n,d,u,...)   device_create_drvdata(c,p,n,d,u , ## __VA_ARGS__)
+ 
+-#else
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(6,5,0)
+  static struct class *vt_class;
++#else
++ static const struct class __vt_class;
++ static const struct class *vt_class = &__vt_class;
+ 
+ #endif
+ 
+@@ -335,11 +335,17 @@
+ 	}
+ 
+ 	/* register the vtcore class for sysfs and udev */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,5,0)
+ 	vt_class = class_create( THIS_MODULE, NAME );
+ 	if( IS_ERR(vt_class) ) {
+ 		ret = PTR_ERR(vt_class);
+ 		goto hell_5;
+ 	}
++#else
++	ret = class_register(vt_class);
++	if (ret)
++		goto hell_5;
++#endif
+ 	d = device_create(vt_class, NULL, vtcore->dev, NULL, "vt0");
+ 	if( IS_ERR(d) ) {
+ 		ret = PTR_ERR(d);
+--- vpb-driver-4.2.58/src/vpb/vpb.c.orig	2023-12-20 21:48:28.444029156 +0100
++++ vpb-driver-4.2.58/src/vpb/vpb.c	2023-12-20 21:51:21.398373018 +0100
+@@ -182,8 +182,11 @@
+   static struct class *vpb_class;
+   #define device_create(c,p,n,d,u,...)   device_create_drvdata(c,p,n,d,u , ## __VA_ARGS__)
+ 
+- #else
++ #elif LINUX_VERSION_CODE < KERNEL_VERSION(6,5,0)
+   static struct class *vpb_class;
++ #else
++  static const struct class __vpb_class;
++  static const struct class *vpb_class = &__vpb_class;
+ 
+  #endif
+ #endif
+@@ -358,7 +361,13 @@
+ 	#ifdef USE_UDEV
+ 	printk(KERN_INFO NAME": Setting up udev...\n");
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6,5,0)
+ 	vpb_class = class_create(THIS_MODULE, NAME);
++#else
++	ret = class_register(vpb_class);
++	if (ret)
++		goto hell;
++#endif
+ 
+ 	{
+ 	    struct device *d = device_create(vpb_class, NULL, MKDEV(major, 0), NULL, "vpb0");

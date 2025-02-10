@@ -21,7 +21,7 @@ exit 1
 
 %define		_duplicate_files_terminate_build	0
 
-%define		rel	11
+%define		rel	12
 %define		pname	vpb-driver
 Summary:	Voicetronix voice processing board (VPB) driver software
 Summary(pl.UTF-8):	Oprogramowanie sterowników dla kart przetwarzających głos (VPB) Voicetronix
@@ -175,13 +175,15 @@ p=`pwd`\
 %if %{with userspace} && %{with static_libs}
 install -d build-static
 cd build-static
-../%configure \
+%define configuredir ..
+%configure \
 	%{?with_pri:--with-pri}
 %{__make} -C src/libtoneg \
 	VPATH=%{_libdir}
 %{__make} -C src/libvpb \
 	VPATH=%{_libdir}
 cd ..
+%define configuredir .
 %endif
 
 %configure \

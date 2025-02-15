@@ -44,11 +44,11 @@ Patch8:		kernel-5.18.patch
 Patch9:		pthread.patch
 Patch10:	kernel-6.5.patch
 URL:		http://www.voicetronix.com.au/downloads.htm#linux
-BuildRequires:	rpmbuild(macros) >= 1.701
 %{?with_kernel:%{expand:%buildrequires_kernel kernel%%{_alt_kernel}-module-build >= 3:2.6.20.2}}
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	libstdc++-devel
 BuildRequires:	pciutils-devel
+BuildRequires:	rpmbuild(macros) >= 2.043
 BuildRequires:	sed >= 4.0
 BuildRequires:	zlib-devel
 Requires:	vpb-libs = %{version}-%{rel}

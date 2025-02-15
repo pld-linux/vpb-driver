@@ -1,8 +1,8 @@
 #
 # Conditional build:
-%bcond_without  kernel		# don't build kernel modules
-%bcond_without	userspace	# don't build userspace package
-%bcond_without	static_libs	# don't build static libraries
+%bcond_without  kernel		# kernel modules
+%bcond_without	userspace	# userspace package
+%bcond_without	static_libs	# static libraries
 %bcond_with	pri		# ISDN devices support (modified libpri)
 
 # The goal here is to have main, userspace, package built once with
@@ -21,29 +21,35 @@ exit 1
 
 %define		_duplicate_files_terminate_build	0
 
-%define		rel	12
+%define		rel	1
 %define		pname	vpb-driver
 Summary:	Voicetronix voice processing board (VPB) driver software
 Summary(pl.UTF-8):	Oprogramowanie sterowników dla kart przetwarzających głos (VPB) Voicetronix
 Name:		%{pname}%{?_pld_builder:%{?with_kernel:-kernel}}%{_alt_kernel}
-Version:	4.2.58
+Version:	4.2.61
 Release:	%{rel}%{?_pld_builder:%{?with_kernel:@%{_kernel_ver_str}}}
 License:	LGPL v2.1+ (libraries), GPL v2+ (libpri library, kernel module)
 Group:		Libraries
-Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{pname}-%{version}.tar.gz
-# Source0-md5:	f8c85b52e8d01b04d86632e98ac59d19
+# originally, but dead now
+#Source0:	http://www.voicetronix.com.au/Downloads/vpb-driver-4.x/%{pname}-%{version}.tar.gz
+# use sources archived by Debian
+Source0:	http://deb.debian.org/debian/pool/main/v/vpb-driver/%{pname}_%{version}.orig.tar.gz
+# Source0-md5:	6c220b9abc4881361e8c08e48dc83bcb
+# but it misses firmware, take that from previous release
+Source1:	%{pname}-4.2.58.tar.gz
+# Source1-md5:	f8c85b52e8d01b04d86632e98ac59d19
 Patch0:		%{pname}-make.patch
 Patch1:		userspace-only.patch
-Patch2:		linux-4.12.patch
 Patch3:		kernel-4.14.patch
-Patch4:		gcc8.patch
 Patch5:		kernel-5.6.patch
 Patch6:		kernel-5.13.patch
 Patch7:		kernel-5.17.patch
 Patch8:		kernel-5.18.patch
 Patch9:		pthread.patch
 Patch10:	kernel-6.5.patch
-URL:		http://www.voicetronix.com.au/downloads.htm#linux
+# dead now
+#URL:		http://www.voicetronix.com.au/downloads.htm#linux
+URL:		http://www.voicetronix.com.au/
 %{?with_kernel:%{expand:%buildrequires_kernel kernel%%{_alt_kernel}-module-build >= 3:2.6.20.2}}
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	libstdc++-devel
@@ -149,12 +155,12 @@ p=`pwd`\
 %{?with_kernel:%{expand:%create_kernel_packages}}
 
 %prep
-%setup -q -n %{pname}-%{version}
+%setup -q -n %{pname}-%{version} -a1
+%{__mv} %{pname}-4.2.58/firmware .
+%{__rm} -r %{pname}-4.2.58
 %patch -P 0 -p1
 %patch -P 1 -p1
-%patch -P 2 -p1
 %patch -P 3 -p1
-%patch -P 4 -p1
 %patch -P 5 -p1
 %patch -P 6 -p1
 %patch -P 7 -p1
@@ -216,8 +222,8 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib*.so*
 
 # install man pages only for packaged software
 install -d $RPM_BUILD_ROOT%{_mandir}/man1
-install doc/vpbconf.1 $RPM_BUILD_ROOT%{_mandir}/man1
-install doc/vpbscan.1 $RPM_BUILD_ROOT%{_mandir}/man1
+cp -p doc/vpbconf.1 $RPM_BUILD_ROOT%{_mandir}/man1
+cp -p doc/vpbscan.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
 %if %{with static_libs}
 install build-static/src/{libtoneg/libtoneg.a,libvpb/libvpb.a} $RPM_BUILD_ROOT%{_libdir}
@@ -243,9 +249,9 @@ rm -rf $RPM_BUILD_ROOT
 %files -n vpb-libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libtoneg.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libtoneg.so.0
+%attr(755,root,root) %ghost %{_libdir}/libtoneg.so.1
 %attr(755,root,root) %{_libdir}/libvpb.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libvpb.so.0
+%attr(755,root,root) %ghost %{_libdir}/libvpb.so.1
 
 %files -n vpb-devel
 %defattr(644,root,root,755)

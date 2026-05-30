@@ -21,7 +21,7 @@ exit 1
 
 %define		_duplicate_files_terminate_build	0
 
-%define		rel	1
+%define		rel	2
 %define		pname	vpb-driver
 Summary:	Voicetronix voice processing board (VPB) driver software
 Summary(pl.UTF-8):	Oprogramowanie sterowników dla kart przetwarzających głos (VPB) Voicetronix
@@ -105,7 +105,7 @@ Static VPD libraries.
 %description -n vpb-static -l pl.UTF-8
 Statyczne biblioteki VPD.
 
-%define	kernel_pkg()\
+%define	kernel_pkg() \
 %package -n kernel%{_alt_kernel}-telephony-vpb\
 Summary:	Linux kernel driver for Voicetronix Voice Processing Board (VPB)\
 Summary(pl.UTF-8):	Sterownik jądra Linuksa do kart VPB firmy Voicetronix\
@@ -138,7 +138,7 @@ Sterownik jądra Linuksa do kart VPB firmy Voicetronix.\
 %depmod %{_kernel_ver}\
 %{nil}
 
-%define build_kernel_pkg()\
+%define build_kernel_pkg() \
 %{__make} -C src/vtcore KSRC=%{_kernelsrcdir} clean \
 %{__make} -C src/vpb KSRC=%{_kernelsrcdir} clean \
 %{__make} -C src/vtcore KSRC=%{_kernelsrcdir} \
